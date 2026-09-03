@@ -1,0 +1,6 @@
+<!-- Fundo da aba selecionada no dashboard de gráficos da Home (2026-08-29). Aplicado só na
+     aba ativa (Simulações ou Movimentações); a aba inativa fica sem background nenhum. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="20dp" />
+    <solid android:color="@color/cyan" />
+</shape>

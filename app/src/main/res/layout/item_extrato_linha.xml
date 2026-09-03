@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp">
+
+        <TextView
+            android:id="@+id/text_coluna_data"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="25"
+            android:textColor="@color/white"
+            android:alpha="0.85"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            tools:text="26/08/2026" />
+
+        <TextView
+            android:id="@+id/text_coluna_valor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="28"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            tools:text="+ R$ 0,00" />
+
+        <TextView
+            android:id="@+id/text_coluna_descricao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="47"
+            android:textColor="@color/white"
+            android:alpha="0.9"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            tools:text="Um exemplo de uma descrição muito grande" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:background="@color/white"
+        android:alpha="0.08" />
+
+</LinearLayout>

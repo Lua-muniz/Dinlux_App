@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray">#1B1B1B</color>
+    <color name="lightBlue">#E0FFFF</color>
+    <color name="skyBlue">#80F3F3</color>
+    <color name="cyan">#02E6FE</color>
+    <color name="alert_red">#E53935</color>
+
+    <!-- Tabela de extrato -->
+    <color name="extrato_entrada">#43A047</color>
+    <color name="extrato_saida">#E53935</color>
+
+    <!-- Módulo de Avisos -->
+    <color name="aviso_badge_verde">#43A047</color>
+
+    <!-- Ícone de aviso/atenção do módulo de Avisos -->
+    <color name="aviso_atencao">#FB8C00</color>
+
+    <!-- Dashboard de gráficos embutido na Home -->
+    <color name="dashboard_card_bg">#242424</color>
+    <color name="dashboard_track_bg">#3A3A3A</color>
+
+    <!-- Paleta de identidade de banco/cartão (EntityColorPalette), usada no menu de
+         cartões da simulação e nos Grupos de nós do canvas -->
+    <color name="node_color_01">#D83131</color>
+    <color name="node_color_02">#31D831</color>
+    <color name="node_color_03">#3131D8</color>
+    <color name="node_color_04">#D8D831</color>
+    <color name="node_color_05">#D86931</color>
+    <color name="node_color_06">#D8A031</color>
+    <color name="node_color_07">#A0D831</color>
+    <color name="node_color_08">#69D831</color>
+    <color name="node_color_09">#31D869</color>
+    <color name="node_color_10">#31D8A0</color>
+    <color name="node_color_11">#31D8D8</color>
+    <color name="node_color_12">#31A0D8</color>
+    <color name="node_color_13">#3169D8</color>
+    <color name="node_color_14">#6931D8</color>
+    <color name="node_color_15">#A031D8</color>
+    <color name="node_color_16">#D831D8</color>
+    <color name="node_color_17">#D831A0</color>
+    <color name="node_color_18">#D83169</color>
+</resources>

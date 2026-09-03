@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="280dp"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:orientation="vertical"
+    android:background="@color/dashboard_card_bg"
+    android:fitsSystemWindows="true"
+    android:elevation="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/text_panel_greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/button_panel_close"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:text=""
+            tools:text="Olá, Luana" />
+
+        <ImageButton
+            android:id="@+id/button_panel_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="4dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_close"
+            android:contentDescription="@string/content_description_fechar_painel" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_name"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Alterar_Nome"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_email"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Alterar_Email"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_password"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Alterar_Senha"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_privacy_policy"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Politicas_de_Privacidade"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_export_data"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Exportar_Meus_Dados"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_test_mode"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Modo_Teste"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg"
+        android:visibility="gone"
+        android:id="@+id/line_panel_test_mode" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_exit"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Sair_do_Perfil"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_panel_delete_account"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/Excluir_Conta"
+        android:textColor="@color/alert_red"
+        android:textAllCaps="false"
+        android:paddingStart="16dp"
+        android:gravity="start|center_vertical"
+        android:backgroundTint="@android:color/transparent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dashboard_track_bg" />
+
+</LinearLayout>

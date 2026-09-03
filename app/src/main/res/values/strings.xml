@@ -1,0 +1,82 @@
+<resources>
+    <string name="app_name">Dinlux</string>
+    <string name="Entrar">Entrar</string>
+    <string name="Criar_Conta">Criar Conta</string>
+    <string name="Esqueci_Minha_Senha">Esqueci Minha Senha</string>
+    <string name="Enviar_Link">Enviar Link</string>
+    <string name="Avisos">Avisos</string>
+    <string name="Financa">Finanças</string>
+    <string name="Simulacoes">Simulações</string>
+    <string name="Listas">Listas</string>
+    <string name="Graficos">Gráficos</string>
+    <string name="Inserir_Extrato">Importar Extrato</string>
+    <string name="Tutorial">Tutorial</string>
+    <string name="Perfil">Perfil</string>
+    <string name="Informacoes">Informações</string>
+    <string name="Alterar_Nome">Alterar Nome</string>
+    <string name="Alterar_Email">Alterar Email</string>
+    <string name="Alterar_Senha">Alterar Senha</string>
+    <string name="Excluir_Conta">Excluir Conta</string>
+    <string name="Sair_do_Perfil">Sair do Perfil</string>
+    <string name="Modo_Teste">Modo Teste</string>
+    <string name="Exportar_Meus_Dados">Exportar Meus Dados</string>
+    <string name="Explicacao_Exportar_Dados">Gere um arquivo com todos os seus dados salvos no Dinlux, bancos, cartões, simulações, extrato importado e listas. Escolha o formato e onde deseja salvar o arquivo no seu aparelho.</string>
+    <string name="Exportar_em_JSON">Exportar em JSON</string>
+    <string name="Exportar_em_PDF">Exportar em PDF</string>
+    <string name="Preparando_Exportacao">Preparando a exportação...</string>
+    <string name="Boas_Vindas_Titulo">Bem-vindo(a) ao Dinlux, %1$s!</string>
+    <string name="Boas_Vindas_Titulo_Sem_Nome">Bem-vindo(a) ao Dinlux!</string>
+    <string name="Boas_Vindas_Dica">Comece cadastrando seu primeiro banco em Finanças para acompanhar seus gastos, cartões e economias em um só lugar. Se quiser rever como o app funciona, é só abrir o Tutorial no menu.</string>
+    <string name="content_description_fechar_boas_vindas">Fechar mensagem de boas-vindas</string>
+    <string name="Salvar_Alteracao">Salvar Alteração</string>
+    <string name="Novo_Nome">Novo Nome</string>
+    <string name="Novo_Email">Novo E-mail</string>
+    <string name="Senha_Atual">Senha Atual</string>
+    <string name="Nova_Senha">Nova Senha</string>
+    <string name="Confirme_a_Nova_Senha">Confirme a Nova Senha</string>
+
+    <!-- Autenticação: mensagens de feedback -->
+    <string name="error_empty_fields">Preencha todos os campos</string>
+    <string name="error_enter_email">Digite seu e-mail</string>
+    <string name="success_account_created">Conta criada com sucesso</string>
+    <string name="success_reset_link_sent">Link de recuperação enviado</string>
+
+    <!-- Simulação: lista -->
+    <string name="content_description_simulation_options">Opções da simulação</string>
+
+    <!-- Simulação: canvas de detalhe -->
+    <string name="content_description_cards_menu">Cartões cadastrados</string>
+    <string name="content_description_minimize_cards_panel">Minimizar painel de cartões</string>
+    <string name="content_description_add_node">Criar novo lançamento</string>
+    <string name="title_cards_panel">Cartões cadastrados</string>
+    <string name="empty_cards_panel">Nenhum banco cadastrado ainda.</string>
+
+    <!-- Avisos: chat por banco -->
+    <string name="content_description_aviso_section_options">Opções da sessão</string>
+    <string name="content_description_aviso_section_collapse">Recolher mensagens da sessão</string>
+    <string name="content_description_aviso_section_expand">Expandir mensagens da sessão</string>
+
+    <!-- Aviso de fechamento de cartão alterado -->
+    <string name="content_description_aviso_cartao_alterado">Aviso: fechamento do cartão foi alterado</string>
+
+    <!-- Home: reorganização pra dar espaço aos gráficos -->
+    <string name="content_description_menu_lateral">Abrir menu</string>
+
+    <!-- Painel lateral de perfil  -->
+    <string name="content_description_fechar_painel">Fechar painel</string>
+
+    <!-- Termos de Privacidade / LGPD  -->
+    <string name="Politicas_de_Privacidade">Políticas de Privacidade</string>
+    <string name="title_terms">Termos de Privacidade</string>
+    <string name="label_terms_checkbox">Li e aceito os Termos de Privacidade acima</string>
+
+    <!-- Dashboard de gráficos embutido na Home -->
+    <string name="dashboard_tab_simulacoes">Simulações</string>
+    <string name="dashboard_tab_movimentacoes">Movimentações</string>
+    <!-- Aba "Cartões" do dashboard -->
+    <string name="dashboard_tab_cartoes">Cartões</string>
+    <string name="dashboard_progresso_geral_titulo">Progresso Geral</string>
+
+    <!-- Lista -->
+    <string name="content_description_list_options">Opções da lista</string>
+</resources>

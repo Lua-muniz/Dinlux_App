@@ -1,0 +1,7 @@
+<!-- Badge branco usado para destacar títulos/etiquetas sobre fundos coloridos (Etapa 2.3,
+     2026-08-30, pedido da Luana): título "Extrato" (texto preto) e etiqueta da bandeira do
+     cartão dentro do card ciano (texto ciano). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="8dp" />
+    <solid android:color="@color/white" />
+</shape>
