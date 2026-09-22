@@ -7,7 +7,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.luamuniz.dinlux.core.FirestoreCollections
+import com.luamuniz.dinlux.core.NetworkUtils
 import com.luamuniz.dinlux.core.TermosDePrivacidade
 
 /**
@@ -31,6 +33,12 @@ class AuthRepository(
     ) {
         if (!termsAccepted) {
             onError("É necessário aceitar os Termos de Privacidade para criar sua conta")
+            return
+        }
+        // Autenticação (diferente do Firestore) não tem fila offline: criar conta,
+        // entrar, redefinir senha etc. exigem contato direto com o servidor
+        if (!NetworkUtils.isOnline()) {
+            onError(NetworkUtils.MENSAGEM_SEM_CONEXAO)
             return
         }
         auth.createUserWithEmailAndPassword(email, password)
@@ -60,8 +68,8 @@ class AuthRepository(
         )
         db.collection(FirestoreCollections.USERS).document(uid)
             .set(profile)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError("Conta criada, mas houve um erro ao salvar o perfil") }
+        onSuccess()
     }
 
     fun login(
@@ -70,6 +78,10 @@ class AuthRepository(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        if (!NetworkUtils.isOnline()) {
+            onError(NetworkUtils.MENSAGEM_SEM_CONEXAO)
+            return
+        }
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { exception -> onError(mapAuthError(exception)) }
@@ -80,6 +92,10 @@ class AuthRepository(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        if (!NetworkUtils.isOnline()) {
+            onError(NetworkUtils.MENSAGEM_SEM_CONEXAO)
+            return
+        }
         auth.sendPasswordResetEmail(email)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { exception ->
@@ -88,6 +104,23 @@ class AuthRepository(
     }
 
     fun isUserLoggedIn(): Boolean = auth.currentUser != null
+
+    // Alterar e-mail (ver AlterEmail) só efetiva a troca depois que o usuário clica no
+    // link de verificação enviado pelo Firebase — até lá o e-mail antigo continua sendo
+    // o de verdade. Por isso o Firestore não é atualizado na hora da solicitação; essa
+    // função mantém users/{uid}.email sincronizado com o e-mail real do Firebase Auth,
+    // pra ser chamada sempre que o app reabre/retoma (ver Home.onStart)
+    fun syncEmailWithAuth() {
+        val user = auth.currentUser ?: return
+        val emailAtual = user.email ?: return
+        val userRef = db.collection(FirestoreCollections.USERS).document(user.uid)
+        userRef.get()
+            .addOnSuccessListener { doc ->
+                if (doc.getString("email") != emailAtual) {
+                    userRef.set(mapOf("email" to emailAtual), SetOptions.merge())
+                }
+            }
+    }
 
     fun deleteAccount(
         currentPassword: String,
@@ -98,6 +131,10 @@ class AuthRepository(
         val email = user?.email
         if (user == null || email == null) {
             onError("Usuário não autenticado")
+            return
+        }
+        if (!NetworkUtils.isOnline()) {
+            onError(NetworkUtils.MENSAGEM_SEM_CONEXAO)
             return
         }
 

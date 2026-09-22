@@ -59,8 +59,10 @@ class SimulationRepository(
             return
         }
         simulationsRef(uid).add(Simulation(title = title, active = active))
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao criar simulação") }
+        // onSuccess já dispara aqui: a escrita entra no cache local (offline ou não) e
+        // sincroniza sozinha quando conectar, sem travar a tela esperando o servidor
+        onSuccess()
     }
 
     fun renameSimulation(id: String, newTitle: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -70,8 +72,8 @@ class SimulationRepository(
             return
         }
         simulationsRef(uid).document(id).update("title", newTitle)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao renomear simulação") }
+        onSuccess()
     }
 
     /**
@@ -84,8 +86,8 @@ class SimulationRepository(
             return
         }
         simulationsRef(uid).document(id).update("active", active)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao atualizar simulação") }
+        onSuccess()
     }
 
     /**
@@ -153,8 +155,8 @@ class SimulationRepository(
         batch.update(simulationsRef(uid).document(simulationId), "active", true)
 
         batch.commit()
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao ativar simulação") }
+        onSuccess()
     }
 
     fun deleteSimulation(id: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -170,8 +172,8 @@ class SimulationRepository(
                 snapshot.documents.forEach { batch.delete(it.reference) }
                 batch.delete(simulationsRef(uid).document(id))
                 batch.commit()
-                    .addOnSuccessListener { onSuccess() }
                     .addOnFailureListener { onError(it.message ?: "Erro ao excluir simulação") }
+                onSuccess()
             }
             .addOnFailureListener { onError(it.message ?: "Erro ao excluir simulação") }
     }

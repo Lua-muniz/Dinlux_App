@@ -413,6 +413,9 @@ class Home : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         carregarSaudacaoPainel()
+        // Se o usuário confirmou uma troca de e-mail pendente fora do app (clicando no
+        // link enviado por e-mail), pega o e-mail atualizado do Firebase Auth aqui
+        authRepository.syncEmailWithAuth()
     }
 
     override fun onDestroy() {

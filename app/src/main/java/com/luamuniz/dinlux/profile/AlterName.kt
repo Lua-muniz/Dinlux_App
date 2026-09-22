@@ -84,13 +84,13 @@ class AlterName : AppCompatActivity() {
 
 
         dr.set(mapOf("nome" to newName), SetOptions.merge())
-            .addOnSuccessListener {
-                Toast.makeText(this, "Nome alterado com sucesso", Toast.LENGTH_SHORT).show()
-                finish() // Fecha a tela e volta para o perfil/home atualizado
-            }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Erro ao salvar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        // A escrita já entrou no cache local (offline ou não) e sincroniza sozinha
+        // quando conectar, não precisa esperar confirmação do servidor pra fechar a tela
+        Toast.makeText(this, "Nome alterado com sucesso", Toast.LENGTH_SHORT).show()
+        finish() // Fecha a tela e volta para o perfil/home atualizado
     }
 
     private fun startComponents() {

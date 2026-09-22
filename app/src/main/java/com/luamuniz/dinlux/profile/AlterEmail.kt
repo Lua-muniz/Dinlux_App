@@ -16,9 +16,9 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.luamuniz.dinlux.R
 import com.luamuniz.dinlux.core.FirestoreCollections
+import com.luamuniz.dinlux.core.NetworkUtils
 import com.luamuniz.dinlux.home.Home
 
 class AlterEmail : AppCompatActivity() {
@@ -91,6 +91,15 @@ class AlterEmail : AppCompatActivity() {
             return
         }
 
+        // Alterar e-mail depende inteiramente de operações de Auth (reautenticar, enviar
+        // verificação) que não têm fila offline, e a checagem de duplicidade abaixo só é
+        // confiável consultando o servidor. Por isso, diferente do resto do app, essa tela
+        // exige estar online
+        if (!NetworkUtils.isOnline()) {
+            Toast.makeText(this, NetworkUtils.MENSAGEM_SEM_CONEXAO, Toast.LENGTH_LONG).show()
+            return
+        }
+
         // 1. Checa se o e-mail já existe na coleção de usuários do Firestore
         db.collection(FirestoreCollections.USERS)
             .whereEqualTo("email", newEmail)
@@ -113,23 +122,19 @@ class AlterEmail : AppCompatActivity() {
         val credential = EmailAuthProvider.getCredential(user.email!!, password)
 
         user.reauthenticate(credential).addOnSuccessListener {
-                // Envia um link de verificação para o novo e-mail em vez de trocar diretamente
+                // Envia um link de verificação para o novo e-mail em vez de trocar diretamente.
+                // O e-mail só passa a valer de verdade quando o usuário clica nesse link — por
+                // isso o Firestore NÃO é atualizado aqui, ainda mostraria um e-mail que a conta
+                // pode nunca chegar a usar. O campo users/{uid}.email é sincronizado depois,
+                // sozinho, em AuthRepository.syncEmailWithAuth (chamado em Home.onStart)
                 user.verifyBeforeUpdateEmail(newEmail)
                     .addOnSuccessListener {
-                        // Atualiza também no Firestore o novo e-mail pendente/alterado
-                        db.collection(FirestoreCollections.USERS).document(idUser)
-                            .set(mapOf("email" to newEmail), SetOptions.merge())
-                            .addOnSuccessListener {
-                                Toast.makeText(
-                                    this,
-                                    "E-mail de confirmação enviado para o novo endereço! Verifique sua caixa de entrada.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this, "Erro ao atualizar no banco: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
+                        Toast.makeText(
+                            this,
+                            "E-mail de confirmação enviado para o novo endereço! Verifique sua caixa de entrada.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        finish()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Erro ao enviar verificação: ${e.message}", Toast.LENGTH_LONG).show()

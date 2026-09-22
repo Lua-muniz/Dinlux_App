@@ -86,16 +86,25 @@ object SimulationCalculator {
     }
 
     /**
-     * Limite disponível de um cartão
+     * Parte do VALOR PRINCIPAL da compra (sem juros) ainda em aberto: o juros é pago pelo
+     * usuário mês a mês, mas não consome limite do cartão, só o valor da compra em si consome
+     */
+    private fun calcularPrincipalNaoPago(entry: SimulationEntry): Double {
+        if (entry.installments <= 0) return 0.0
+        val parcelaSemJuros = entry.totalValue / entry.installments
+        return parcelaSemJuros * calcularParcelasNaoPagas(entry.installments, entry.paidInstallments)
+    }
+
+    /**
+     * Limite disponível de um cartão. Considera só o valor principal (sem juros) ainda em
+     * aberto de cada compra: o juros é pago mês a mês pelo usuário, mas não consome limite
      */
     fun calcularLimiteDisponivel(
         limiteTotal: Double,
         comprasCredito: List<SimulationEntry>,
         usedAmount: Double = 0.0
     ): Double {
-        val usado = comprasCredito.sumOf {
-            calcularValorParcelasNaoPagas(it.installmentValue, it.installments, it.paidInstallments)
-        }
+        val usado = comprasCredito.sumOf { calcularPrincipalNaoPago(it) }
         return limiteTotal - usado - usedAmount
     }
 

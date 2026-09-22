@@ -44,7 +44,11 @@ class DashboardSectionAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         progressoPorSimulacao = novasSecoes.map {
             DashboardLineChartView.DashboardLineEntry(label = it.simulationTitle.orEmpty(), progress = it.progressoGeral)
         }
-        sections = novasSecoes.ifEmpty { listOf(secaoVazia()) }
+        sections = if (novasSecoes.isEmpty()) {
+            listOf(secaoVazia())
+        } else {
+            novasSecoes.filter { secao -> secao.entityCharts.any { it.entries.isNotEmpty() } }
+        }
         val todosOsIds = sections.flatMap { secao -> secao.entityCharts.map { it.colorSourceId } }
         indicesCor = EntityColorPalette.resolveIndices(todosOsIds)
         notifyDataSetChanged()

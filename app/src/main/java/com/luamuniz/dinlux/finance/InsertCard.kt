@@ -219,13 +219,13 @@ class InsertCard : AppCompatActivity() {
             }
 
             bankRef.update("cards", updatedCards)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Cartão salvo com sucesso", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
                 .addOnFailureListener {
                     Toast.makeText(this, "Erro ao salvar cartão", Toast.LENGTH_SHORT).show()
                 }
+            // A escrita já entrou no cache local (offline ou não) e sincroniza sozinha
+            // quando conectar, não precisa esperar confirmação do servidor pra fechar a tela
+            Toast.makeText(this, "Cartão salvo com sucesso", Toast.LENGTH_SHORT).show()
+            finish()
         }.addOnFailureListener {
             Toast.makeText(this, "Erro ao carregar banco", Toast.LENGTH_SHORT).show()
         }

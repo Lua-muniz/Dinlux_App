@@ -58,6 +58,7 @@ class InsertSimulationEntry : AppCompatActivity() {
     private lateinit var containerPurchaseCredit: LinearLayout
     private lateinit var spinnerPurchaseCard: Spinner
     private lateinit var textPurchaseInterestInfo: TextView
+    private lateinit var textPurchaseDate: TextView
     private lateinit var editPurchaseInstallments: EditText
     private lateinit var textPurchasePreview: TextView
 
@@ -78,6 +79,7 @@ class InsertSimulationEntry : AppCompatActivity() {
     private var selectedSavingsBank: Bank? = null
     private var savingsStartDate: LocalDate? = null
     private var savingsEndDate: LocalDate? = null
+    private var purchaseDate: LocalDate = LocalDate.now()
     private var comprasCreditoAtivas: List<SimulationEntry> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,6 +122,7 @@ class InsertSimulationEntry : AppCompatActivity() {
         containerPurchaseCredit = findViewById(R.id.container_purchase_credit)
         spinnerPurchaseCard = findViewById(R.id.spinner_purchase_card)
         textPurchaseInterestInfo = findViewById(R.id.text_purchase_interest_info)
+        textPurchaseDate = findViewById(R.id.text_purchase_date)
         editPurchaseInstallments = findViewById(R.id.edit_purchase_installments)
         textPurchasePreview = findViewById(R.id.text_purchase_preview)
 
@@ -191,6 +194,8 @@ class InsertSimulationEntry : AppCompatActivity() {
 
         textSavingsStartDate.setOnClickListener { abrirSeletorData(isInicio = true) }
         textSavingsEndDate.setOnClickListener { abrirSeletorData(isInicio = false) }
+
+        textPurchaseDate.setOnClickListener { abrirSeletorDataCompra() }
 
         buttonSaveEntry.setOnClickListener { validarESalvar() }
     }
@@ -268,6 +273,30 @@ class InsertSimulationEntry : AppCompatActivity() {
             },
             referencia.year, referencia.monthValue - 1, referencia.dayOfMonth
         ).show()
+    }
+
+    // Data real em que a compra em crédito foi feita, usada como base pra contar as
+    // parcelas (a partir do fechamento do cartão). Só existe pra crédito: permite
+    // registrar uma compra antiga que ainda tem parcelas em aberto até hoje/no futuro
+    private fun abrirSeletorDataCompra() {
+        val dialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                purchaseDate = LocalDate.of(year, month + 1, dayOfMonth)
+                atualizarTextoDataCompra()
+            },
+            purchaseDate.year, purchaseDate.monthValue - 1, purchaseDate.dayOfMonth
+        )
+        dialog.datePicker.maxDate = System.currentTimeMillis()
+        dialog.show()
+    }
+
+    private fun atualizarTextoDataCompra() {
+        textPurchaseDate.text = if (purchaseDate.isEqual(LocalDate.now())) {
+            "Data da compra: hoje"
+        } else {
+            "Data da compra: ${purchaseDate.format(dateFormat)}"
+        }
     }
 
     // ---------- PREVIEW EM TEMPO REAL ----------
@@ -359,10 +388,12 @@ class InsertSimulationEntry : AppCompatActivity() {
             val comprasDoCartao = comprasCreditoAtivas.filter { it.bankId == bank.id && it.cardId == card.id }
             val disponivel = SimulationCalculator.calcularLimiteDisponivel(card.limit, comprasDoCartao, card.usedAmount)
 
-            if (totalComJuros > disponivel) {
+            // O juros é pago pelo usuário mês a mês, mas não consome limite do cartão: o
+            // que precisa caber no limite disponível é o valor da compra em si
+            if (valorTotal > disponivel) {
                 Toast.makeText(
                     this,
-                    "Essa compra (${currencyFormat.format(totalComJuros)} no total) ultrapassa o limite disponível do cartão ${card.label} (${currencyFormat.format(disponivel.coerceAtLeast(0.0))}). Reduza o valor ou o número de parcelas, ou escolha outro cartão.",
+                    "Essa compra (${currencyFormat.format(valorTotal)} no total) ultrapassa o limite disponível do cartão ${card.label} (${currencyFormat.format(disponivel.coerceAtLeast(0.0))}). Reduza o valor ou o número de parcelas, ou escolha outro cartão.",
                     Toast.LENGTH_LONG
                 ).show()
                 return
@@ -382,7 +413,8 @@ class InsertSimulationEntry : AppCompatActivity() {
                 installments = parcelas,
                 interestRate = taxa,
                 installmentValue = valorParcela,
-                totalWithInterest = totalComJuros
+                totalWithInterest = totalComJuros,
+                createdAt = purchaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             )
 
             salvarEntry(entry)

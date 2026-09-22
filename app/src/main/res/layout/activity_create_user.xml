@@ -10,12 +10,19 @@
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background"
-    tools:context=".authentication.CreateUser"
-    >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:context=".authentication.CreateUser"
+        app:layout_constraintWidth_max="480dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
 
     <ImageView
         android:id="@+id/logo_d"
@@ -172,6 +179,7 @@
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_create"
         style="@style/Button"
+        android:layout_width="0dp"
         android:text="@string/Criar_Conta"
         android:textColor="@color/white"
         android:textSize="20sp"
@@ -203,6 +211,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkbox_terms_accept"
         />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

@@ -78,8 +78,10 @@ class StatementTransactionRepository(
                 batch.set(doc, record)
             }
             batch.commit()
-                .addOnSuccessListener { onSuccess(unicas.size, transacoes.size - unicas.size) }
                 .addOnFailureListener { onError(it.message ?: "Erro ao salvar lançamentos") }
+            // onSuccess já dispara aqui: a escrita entra no cache local (offline ou não)
+            // e sincroniza sozinha quando conectar, sem travar a tela esperando o servidor
+            onSuccess(unicas.size, transacoes.size - unicas.size)
         }, onError = onError)
     }
 
@@ -107,8 +109,8 @@ class StatementTransactionRepository(
     }
 
     // Firestore limita 500 operações por batch — corta em lotes de 400 (com folga) e
-    // confirma um de cada vez, em sequência, só chamando onSuccess quando o último lote
-    // terminar. Um extrato normal tem no máximo algumas centenas de lançamentos, então
+    // dispara todos de uma vez (cada um entra no cache/fila local na hora, offline ou
+    // não). Um extrato normal tem no máximo algumas centenas de lançamentos, então
     // isso raramente precisa de mais de um lote. É só uma proteção pra não
     // falhar silenciosamente se algum dia acontecer.
     private fun apagarEmLotes(
@@ -120,13 +122,19 @@ class StatementTransactionRepository(
             onSuccess()
             return
         }
-        val lote = referencias.take(400)
-        val resto = referencias.drop(400)
-        val batch = db.batch()
-        lote.forEach { batch.delete(it) }
-        batch.commit()
-            .addOnSuccessListener { apagarEmLotes(resto, onSuccess, onError) }
-            .addOnFailureListener { onError(it.message ?: "Erro ao apagar extrato anterior") }
+        var falhou = false
+        referencias.chunked(400).forEach { lote ->
+            val batch = db.batch()
+            lote.forEach { batch.delete(it) }
+            batch.commit()
+                .addOnFailureListener {
+                    if (!falhou) {
+                        falhou = true
+                        onError(it.message ?: "Erro ao apagar extrato anterior")
+                    }
+                }
+        }
+        onSuccess()
     }
 
     fun loadTransacoesAntigas(

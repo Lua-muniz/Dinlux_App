@@ -116,6 +116,12 @@ class SimulationEntryRepository(
             .addOnFailureListener { onError(it.message ?: "Erro ao verificar Grupos") }
     }
 
+    // Usa batch (não transaction) com o nodeCount que `createEntry` já leu na consulta de
+    // Grupos com vaga, em vez de reler o Grupo: `runTransaction` exige contato com o
+    // servidor e falha offline, o que quebraria a criação de lançamento sem internet.
+    // Custo: perde a proteção contra corrida (dois dispositivos enchendo o mesmo Grupo
+    // ao mesmo tempo) — aceitável nesse app de usuário único, e inevitável de qualquer
+    // forma quando offline (não dá pra confirmar o estado do servidor em tempo real)
     private fun adicionarNoGrupo(
         uid: String,
         grupo: SimulationGroup,
@@ -126,24 +132,12 @@ class SimulationEntryRepository(
         val grupoRef = groupsRef(uid).document(grupo.id)
         val entryRef = entriesRef(uid).document()
 
-        db.runTransaction { transaction ->
-            val snapshot = transaction.get(grupoRef)
-            val nodeCountAtual = (snapshot.getLong("nodeCount") ?: 0L).toInt()
-            if (nodeCountAtual >= SimulationGroup.MAX_NODES_PER_GROUP) {
-                throw IllegalStateException(GRUPO_CHEIO)
-            }
-            transaction.update(grupoRef, "nodeCount", nodeCountAtual + 1)
-            transaction.set(entryRef, entry.copy(groupId = grupo.id))
-        }.addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e ->
-                if (e is IllegalStateException && e.message == GRUPO_CHEIO) {
-                    // Alguém encheu o Grupo entre a consulta e a transação — tenta de
-                    // novo do zero; dessa vez vai criar um Grupo novo.
-                    createEntry(entry, onSuccess, onError)
-                } else {
-                    onError(e.message ?: "Erro ao adicionar lançamento ao Grupo")
-                }
-            }
+        val batch = db.batch()
+        batch.update(grupoRef, "nodeCount", grupo.nodeCount + 1)
+        batch.set(entryRef, entry.copy(groupId = grupo.id))
+        batch.commit()
+            .addOnFailureListener { onError(it.message ?: "Erro ao adicionar lançamento ao Grupo") }
+        onSuccess()
     }
 
     private fun criarGrupoEAdicionar(
@@ -168,11 +162,12 @@ class SimulationEntryRepository(
         val grupoRef = groupsRef(uid).document()
         val entryRef = entriesRef(uid).document()
 
-        db.runTransaction { transaction ->
-            transaction.set(grupoRef, grupo)
-            transaction.set(entryRef, entry.copy(groupId = grupoRef.id))
-        }.addOnSuccessListener { onSuccess() }
+        val batch = db.batch()
+        batch.set(grupoRef, grupo)
+        batch.set(entryRef, entry.copy(groupId = grupoRef.id))
+        batch.commit()
             .addOnFailureListener { onError(it.message ?: "Erro ao criar Grupo") }
+        onSuccess()
     }
 
     /**
@@ -186,8 +181,8 @@ class SimulationEntryRepository(
         }
         groupsRef(uid).document(groupId)
             .update("name", novoNome)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao renomear o Grupo") }
+        onSuccess()
     }
 
     /** Renomeia um lançamento (permitido pra compra e economia)*/
@@ -199,8 +194,8 @@ class SimulationEntryRepository(
         }
         entriesRef(uid).document(entry.id)
             .update("title", novoTitulo)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao renomear lançamento") }
+        onSuccess()
     }
 
     /**
@@ -232,14 +227,17 @@ class SimulationEntryRepository(
                     "monthlyAmount" to novoValorMensal
                 )
             )
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao atualizar meta da economia") }
+        onSuccess()
     }
 
     /**
      * Exclui um lançamento. O Grupo dele perde um nó; se ficar sem nenhum nó, o Grupo
      * inteiro é excluído junto (evita cluster fantasma vazio no canvas)
      */
+    // Lê o Grupo em vez de usar runTransaction (que exige contato com o servidor e falha
+    // offline): o `.get()` aqui resolve do cache local na hora, já que o Grupo com certeza
+    // foi carregado antes pra aparecer no canvas de onde essa exclusão é chamada
     fun deleteEntry(entry: SimulationEntry, onSuccess: () -> Unit, onError: (String) -> Unit) {
         val uid = auth.currentUser?.uid
         if (uid == null) {
@@ -249,17 +247,21 @@ class SimulationEntryRepository(
         val groupRef = groupsRef(uid).document(entry.groupId)
         val entryRef = entriesRef(uid).document(entry.id)
 
-        db.runTransaction { transaction ->
-            val groupSnapshot = transaction.get(groupRef)
-            val countAtual = (groupSnapshot.getLong("nodeCount") ?: 1L).toInt()
-            val novoCount = (countAtual - 1).coerceAtLeast(0)
-            if (novoCount <= 0) {
-                transaction.delete(groupRef)
-            } else {
-                transaction.update(groupRef, "nodeCount", novoCount)
+        groupRef.get()
+            .addOnSuccessListener { groupSnapshot ->
+                val countAtual = (groupSnapshot.getLong("nodeCount") ?: 1L).toInt()
+                val novoCount = (countAtual - 1).coerceAtLeast(0)
+                val batch = db.batch()
+                if (novoCount <= 0) {
+                    batch.delete(groupRef)
+                } else {
+                    batch.update(groupRef, "nodeCount", novoCount)
+                }
+                batch.delete(entryRef)
+                batch.commit()
+                    .addOnFailureListener { onError(it.message ?: "Erro ao excluir lançamento") }
+                onSuccess()
             }
-            transaction.delete(entryRef)
-        }.addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao excluir lançamento") }
     }
 
@@ -279,40 +281,35 @@ class SimulationEntryRepository(
             onError("Usuário não autenticado")
             return
         }
-        if (entry.groupId == toGroup.id) {
-            onSuccess()
+        if (toGroup.nodeCount >= SimulationGroup.MAX_NODES_PER_GROUP) {
+            onError("Esse Grupo já está cheio")
             return
         }
+
         val fromGroupRef = groupsRef(uid).document(entry.groupId)
         val toGroupRef = groupsRef(uid).document(toGroup.id)
         val entryRef = entriesRef(uid).document(entry.id)
 
-        db.runTransaction { transaction ->
-            val fromSnapshot = transaction.get(fromGroupRef)
-            val toSnapshot = transaction.get(toGroupRef)
-
-            val toCountAtual = (toSnapshot.getLong("nodeCount") ?: 0L).toInt()
-            if (toCountAtual >= SimulationGroup.MAX_NODES_PER_GROUP) {
-                throw IllegalStateException(GRUPO_CHEIO)
-            }
-
-            val fromCountAtual = (fromSnapshot.getLong("nodeCount") ?: 1L).toInt()
-            val novoFromCount = (fromCountAtual - 1).coerceAtLeast(0)
-            if (novoFromCount <= 0) {
-                transaction.delete(fromGroupRef)
-            } else {
-                transaction.update(fromGroupRef, "nodeCount", novoFromCount)
-            }
-            transaction.update(toGroupRef, "nodeCount", toCountAtual + 1)
-            transaction.update(entryRef, "groupId", toGroup.id)
-        }.addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e ->
-                if (e is IllegalStateException && e.message == GRUPO_CHEIO) {
-                    onError("Esse Grupo já está cheio")
+        // Só precisa reler o Grupo de origem: o de destino (toGroup) já veio atualizado
+        // de quem chamou essa função. runTransaction foi trocado por get()+batch pelo
+        // mesmo motivo de deleteEntry (transaction não funciona offline)
+        fromGroupRef.get()
+            .addOnSuccessListener { fromSnapshot ->
+                val fromCountAtual = (fromSnapshot.getLong("nodeCount") ?: 1L).toInt()
+                val novoFromCount = (fromCountAtual - 1).coerceAtLeast(0)
+                val batch = db.batch()
+                if (novoFromCount <= 0) {
+                    batch.delete(fromGroupRef)
                 } else {
-                    onError(e.message ?: "Erro ao mover lançamento")
+                    batch.update(fromGroupRef, "nodeCount", novoFromCount)
                 }
+                batch.update(toGroupRef, "nodeCount", toGroup.nodeCount + 1)
+                batch.update(entryRef, "groupId", toGroup.id)
+                batch.commit()
+                    .addOnFailureListener { onError(it.message ?: "Erro ao mover lançamento") }
+                onSuccess()
             }
+            .addOnFailureListener { onError(it.message ?: "Erro ao mover lançamento") }
     }
 
     fun loadActiveCreditPurchases(onResult: (List<SimulationEntry>) -> Unit) {
@@ -386,8 +383,9 @@ class SimulationEntryRepository(
     }
 
     // Firestore limita 500 operações por batch, corta em lotes de 400 (com folga) e
-    // confirma um de cada vez, em sequência, só chamando onSuccess quando o último lote
-    // terminar. Mesmo padrão já usado em `StatementTransactionRepository.apagarEmLotes`
+    // dispara todos de uma vez (cada um entra no cache/fila local na hora, offline ou
+    // não — não precisa esperar um terminar pra começar o próximo). Mesmo padrão usado
+    // em `StatementTransactionRepository.apagarEmLotes`
     private fun apagarEmLotes(
         referencias: List<DocumentReference>,
         onSuccess: () -> Unit,
@@ -397,16 +395,18 @@ class SimulationEntryRepository(
             onSuccess()
             return
         }
-        val lote = referencias.take(400)
-        val resto = referencias.drop(400)
-        val batch = db.batch()
-        lote.forEach { batch.delete(it) }
-        batch.commit()
-            .addOnSuccessListener { apagarEmLotes(resto, onSuccess, onError) }
-            .addOnFailureListener { onError(it.message ?: "Erro ao apagar dados relacionados") }
-    }
-
-    private companion object {
-        const val GRUPO_CHEIO = "GRUPO_CHEIO"
+        var falhou = false
+        referencias.chunked(400).forEach { lote ->
+            val batch = db.batch()
+            lote.forEach { batch.delete(it) }
+            batch.commit()
+                .addOnFailureListener {
+                    if (!falhou) {
+                        falhou = true
+                        onError(it.message ?: "Erro ao apagar dados relacionados")
+                    }
+                }
+        }
+        onSuccess()
     }
 }

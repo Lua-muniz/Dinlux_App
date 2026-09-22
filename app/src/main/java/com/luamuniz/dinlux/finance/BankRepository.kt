@@ -43,8 +43,11 @@ class BankRepository(
         db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.BANKS).document(bankId)
             .update("bankCode", bankCode)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao salvar código do banco") }
+        // onSuccess já dispara aqui: a escrita já foi gravada no cache local do Firestore
+        // (offline ou não) e vai sincronizar sozinha quando conectar, não precisa esperar
+        // confirmação do servidor pra liberar a tela
+        onSuccess()
     }
 
     // Carrega UM banco por id, usado onde só o saldo atual importa (pergunta de saldo
@@ -75,8 +78,8 @@ class BankRepository(
         db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.BANKS).document(bankId)
             .update("debit", novoValor)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao atualizar saldo") }
+        onSuccess()
     }
 
     // Desconta um valor do saldo (`debit`) de forma atômica via FieldValue.increment
@@ -89,8 +92,8 @@ class BankRepository(
         db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.BANKS).document(bankId)
             .update("debit", FieldValue.increment(-valor))
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao lançar o valor") }
+        onSuccess()
     }
 
     // Define (sobrescreve) o `usedAmount` (uso manual fora de Simulação, ver Card.kt) de
@@ -126,8 +129,8 @@ class BankRepository(
                     if (card.id == cardId) card.copy(usedAmount = novoUsedAmount) else card
                 }
                 bankRef.update("cards", cartoesAtualizados)
-                    .addOnSuccessListener { onSuccess() }
                     .addOnFailureListener { onError(it.message ?: "Erro ao lançar no cartão") }
+                onSuccess()
             }
             .addOnFailureListener { onError(it.message ?: "Erro ao carregar o cartão") }
     }

@@ -10,11 +10,19 @@
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:background="@drawable/background"
         tools:context=".authentication.Login"
+        app:layout_constraintWidth_max="480dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         >
 
         <ImageView
@@ -140,6 +148,8 @@
             android:layout_marginTop="15dp"
             android:layout_height="50dp"
             />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

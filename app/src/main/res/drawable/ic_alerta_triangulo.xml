@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Ícone de aviso/atenção (2026-08-30, Etapa 2.7 — aviso de fechamento de cartão
-alterado, pedido da Luana). Cor já vem embutida no path (@color/aviso_atencao), sem
-depender de tint aplicado de fora — mesmo padrão usado em outras cores fixas do app
-(ex: shape_circle com backgroundTint), pra evitar o problema que já aconteceu antes com
-ic_finance.xml (tint preto vindo do wizard padrão do Android Studio, sem ninguém ter
-pedido). Path do triângulo de exclamação clássico do Material Design (viewport 24x24). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"

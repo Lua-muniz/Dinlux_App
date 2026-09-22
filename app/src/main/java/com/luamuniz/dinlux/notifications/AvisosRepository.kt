@@ -238,8 +238,8 @@ class AvisosRepository(
         )
 
         batch.commit()
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao atualizar a economia") }
+        onSuccess()
     }
 
     /**
@@ -281,8 +281,8 @@ class AvisosRepository(
         )
 
         batch.commit()
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao atualizar a parcela") }
+        onSuccess()
     }
 
     /**
@@ -312,8 +312,8 @@ class AvisosRepository(
         }
 
         batch.commit()
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao marcar como visto") }
+        onSuccess()
     }
 
     /**

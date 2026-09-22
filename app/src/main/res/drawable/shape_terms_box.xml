@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Caixa branca do texto de Termos de Privacidade (Etapa 2.8, 2026-08-30) — mesmo
-     espírito visual de conteiner_components.xml (branco + contorno preto), só com um
-     raio de canto bem menor (8dp em vez de 30dp): a caixa aqui guarda um bloco de texto
-     grande e rolável, não um campo de formulário curto, então o efeito "pílula" super
-     arredondado do conteiner_components não fica bem — um retângulo quase reto lê melhor
-     como "documento". -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
     <solid android:color="@color/white"/>

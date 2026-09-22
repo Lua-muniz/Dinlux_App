@@ -150,6 +150,16 @@
                         android:layout_marginTop="8dp"
                         android:textColor="@color/white"
                         android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_purchase_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/conteiner_components"
+                        android:padding="12dp"
+                        android:text="Data da compra: hoje"
+                        android:textColor="@color/black" />
                 </LinearLayout>
 
                 <EditText

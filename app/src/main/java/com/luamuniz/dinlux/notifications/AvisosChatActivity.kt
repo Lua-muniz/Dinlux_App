@@ -43,6 +43,7 @@ class AvisosChatActivity : AppCompatActivity() {
     private lateinit var buttonToBack: ImageButton
     private lateinit var textTitle: TextView
     private lateinit var textSaldoProjetado: TextView
+    private lateinit var boxLimitesCartoes: LinearLayout
     private lateinit var headerLimitesCartoes: LinearLayout
     private lateinit var buttonToggleLimitesCartoes: ImageButton
     private lateinit var containerLimitesCartoes: LinearLayout
@@ -82,6 +83,7 @@ class AvisosChatActivity : AppCompatActivity() {
         buttonToBack = findViewById(R.id.button_toBack)
         textTitle = findViewById(R.id.title_avisos_chat)
         textSaldoProjetado = findViewById(R.id.text_saldo_projetado)
+        boxLimitesCartoes = findViewById(R.id.box_limites_cartoes)
         headerLimitesCartoes = findViewById(R.id.header_limites_cartoes)
         buttonToggleLimitesCartoes = findViewById(R.id.button_toggle_limites_cartoes)
         containerLimitesCartoes = findViewById(R.id.container_limites_cartoes)
@@ -193,7 +195,7 @@ class AvisosChatActivity : AppCompatActivity() {
 
     private fun exibirContainerLimites(limites: List<LimiteCartaoProjetado>) {
         val visivel = limites.isNotEmpty()
-        headerLimitesCartoes.visibility = if (visivel) View.VISIBLE else View.GONE
+        boxLimitesCartoes.visibility = if (visivel) View.VISIBLE else View.GONE
         containerLimitesCartoes.visibility = if (visivel && limitesExpandido) View.VISIBLE else View.GONE
         containerLimitesCartoes.removeAllViews()
         linhasLimiteCartao.clear()
@@ -214,7 +216,7 @@ class AvisosChatActivity : AppCompatActivity() {
         val limite = limitesPorCartao[cardId] ?: return
         val linha = linhasLimiteCartao[cardId] ?: return
         linha.text = "Limite ${limite.cardLabel}: ${currencyFormat.format(limite.limiteProjetado)}"
-        linha.setTextColor(getColor(if (limite.limiteProjetado < 0.0) R.color.alert_red else R.color.white))
+        linha.setTextColor(getColor(if (limite.limiteProjetado < 0.0) R.color.alert_red else R.color.black))
     }
 
     private fun confirmar(secao: AvisoSecao, mensagem: AvisoMensagem) {
@@ -334,7 +336,22 @@ class AvisosChatActivity : AppCompatActivity() {
             perguntarLimiteInsuficiente(cartaoNegativo)
             return
         }
-        finish()
+        perguntarManterOuDescartar()
+    }
+
+    // Sem saldo/limite negativo, mas ainda existem confirmações feitas nessa sessão:
+    // dá a opção de descartar tudo em lote antes de sair, mesmo sem esse gatilho
+    private fun perguntarManterOuDescartar() {
+        AlertDialog.Builder(this)
+            .setTitle("Sair do chat")
+            .setMessage(
+                "Você confirmou ou desmarcou ${historicoDeAcoes.size} período(s) nessa sessão. " +
+                    "Deseja manter essas alterações ou descartar tudo, voltando ao estado de antes de abrir esse chat?"
+            )
+            .setPositiveButton("Manter e sair") { _, _ -> finish() }
+            .setNegativeButton("Descartar tudo") { _, _ -> confirmarDescarte() }
+            .setNeutralButton("Cancelar", null)
+            .show()
     }
 
     private fun perguntarSaldoInsuficiente() {

@@ -196,12 +196,12 @@ class InsertBank : AppCompatActivity() {
             .collection("users").document(uid)
             .collection("banks")
             .add(bank)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Banco salvo com sucesso", Toast.LENGTH_SHORT).show()
-                finish()
-            }
             .addOnFailureListener {
                 Toast.makeText(this, "Erro ao salvar banco", Toast.LENGTH_SHORT).show()
             }
+        // A escrita já entrou no cache local (offline ou não) e sincroniza sozinha
+        // quando conectar, não precisa esperar confirmação do servidor pra fechar a tela
+        Toast.makeText(this, "Banco salvo com sucesso", Toast.LENGTH_SHORT).show()
+        finish()
     }
 }

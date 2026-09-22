@@ -14,6 +14,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.luamuniz.dinlux.R
+import com.luamuniz.dinlux.core.NetworkUtils
 import com.luamuniz.dinlux.home.Home
 
 class AlterPassword : AppCompatActivity() {
@@ -85,6 +86,13 @@ class AlterPassword : AppCompatActivity() {
         // Verificação: Impedir que a nova senha seja igual à antiga
         if (currentPass == newPass1) {
             newPassword1.error = "A nova senha deve ser diferente da atual"
+            return
+        }
+
+        // Alterar senha depende inteiramente de operações de Auth (reautenticar,
+        // atualizar senha), que não têm fila offline como o Firestore
+        if (!NetworkUtils.isOnline()) {
+            Toast.makeText(this, NetworkUtils.MENSAGEM_SEM_CONEXAO, Toast.LENGTH_LONG).show()
             return
         }
 

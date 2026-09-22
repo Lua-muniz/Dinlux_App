@@ -43,8 +43,10 @@ class ListRepository(
             return
         }
         listsRef(uid).add(ShoppingList(title = title))
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao criar a lista") }
+        // Dispara onSuccess assim que a escrita entra no cache local (offline ou não):
+        // sincroniza sozinha quando conectar, sem travar a tela esperando o servidor
+        onSuccess()
     }
 
     fun renameList(id: String, newTitle: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -54,8 +56,8 @@ class ListRepository(
             return
         }
         listsRef(uid).document(id).update("title", newTitle)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao renomear a lista") }
+        onSuccess()
     }
 
     fun deleteList(id: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -70,8 +72,8 @@ class ListRepository(
                 snapshot.documents.forEach { batch.delete(it.reference) }
                 batch.delete(listsRef(uid).document(id))
                 batch.commit()
-                    .addOnSuccessListener { onSuccess() }
                     .addOnFailureListener { onError(it.message ?: "Erro ao excluir a lista") }
+                onSuccess()
             }
             .addOnFailureListener { onError(it.message ?: "Erro ao excluir a lista") }
     }
@@ -107,8 +109,8 @@ class ListRepository(
         }
         val item = ShoppingListItem(listId = listId, name = name, quantity = quantity, price = price)
         itemsRef(uid).add(item)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao adicionar o item") }
+        onSuccess()
     }
 
     fun updateItem(
@@ -127,8 +129,8 @@ class ListRepository(
 
         itemsRef(uid).document(itemId)
             .update("name", name, "quantity", quantity, "price", price)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao editar o item") }
+        onSuccess()
     }
 
     fun setItemDone(itemId: String, done: Boolean, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -138,8 +140,8 @@ class ListRepository(
             return
         }
         itemsRef(uid).document(itemId).update("done", done)
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao atualizar o item") }
+        onSuccess()
     }
 
     fun deleteItem(itemId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -149,7 +151,7 @@ class ListRepository(
             return
         }
         itemsRef(uid).document(itemId).delete()
-            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError(it.message ?: "Erro ao excluir o item") }
+        onSuccess()
     }
 }

@@ -60,49 +60,55 @@
         tools:text="Saldo: R$ 180,00" />
 
     <LinearLayout
-        android:id="@+id/header_limites_cartoes"
+        android:id="@+id/box_limites_cartoes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginHorizontal="24dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:background="@drawable/shape_terms_box"
+        android:padding="12dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/text_saldo_projetado"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/text_limites_cartoes_titulo"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/header_limites_cartoes"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Limites dos Cartões"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textSize="14sp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <ImageButton
-            android:id="@+id/button_toggle_limites_cartoes"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_arrow_right"
-            app:tint="@color/white" />
+            <TextView
+                android:id="@+id/text_limites_cartoes_titulo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Limites dos Cartões"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/button_toggle_limites_cartoes"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="@color/black" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_limites_cartoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical" />
 
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/container_limites_cartoes"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginHorizontal="24dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/header_limites_cartoes"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/text_empty_state"
@@ -126,7 +132,7 @@
         android:layout_marginTop="8dp"
         android:paddingHorizontal="12dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/container_limites_cartoes"
+        app:layout_constraintTop_toBottomOf="@id/box_limites_cartoes"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

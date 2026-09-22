@@ -493,15 +493,15 @@ class Finance : AppCompatActivity() {
         db.collection("users").document(FirebaseAuth.getInstance().currentUser!!.uid)
             .collection("banks").document(bank.id)
             .delete()
-            .addOnSuccessListener {
-                banks.removeAt(currentBankIndex)
-                if (banks.isEmpty()) {
-                    mostrarEstadoSemBanco()
-                } else {
-                    currentBankIndex = 0
-                    mostrarBanco(currentBankIndex)
-                }
-            }
+        // Atualiza a tela na hora: a exclusão já foi gravada no cache local (offline ou
+        // não) e sincroniza sozinha quando conectar, sem precisar esperar o servidor
+        banks.removeAt(currentBankIndex)
+        if (banks.isEmpty()) {
+            mostrarEstadoSemBanco()
+        } else {
+            currentBankIndex = 0
+            mostrarBanco(currentBankIndex)
+        }
     }
 
     private fun mostrarOpcoesCartao() {
@@ -622,10 +622,8 @@ class Finance : AppCompatActivity() {
                 db.collection("users").document(FirebaseAuth.getInstance().currentUser!!.uid)
                     .collection("banks").document(bank.id)
                     .update("cards", cards)
-                    .addOnSuccessListener {
-                        currentCardIndex = 0
-                        mostrarCartao()
-                    }
+                currentCardIndex = 0
+                mostrarCartao()
             },
             onError = { message ->
                 Toast.makeText(this, "Não foi possível excluir o cartão: $message", Toast.LENGTH_LONG).show()
